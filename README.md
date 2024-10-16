@@ -71,6 +71,79 @@ Balance
 
 Visualization: Created visualizations to communicate findings effectively. This included charts and plots to show churn rates by geography and customer demographics.
 
+R Code for Bank Customer Churn Analysis
+
+1. Load Required Libraries
+
+# Load necessary libraries
+library(readr)      # For reading CSV files
+library(ggplot2)    # For data visualization
+library(dplyr)      # For data manipulation
+
+2. Read the Dataset
+
+# Read the churn data CSV file
+churn_data <- read_csv("C:\\Users\\ragur\\OneDrive\\Desktop\\Capstone Project\\Capstone\\Bank_churn.csv")
+
+3. Data Cleaning and Preparation
+
+# Check for missing values in the dataset
+missing_values <- colSums(is.na(churn_data))
+
+# Create Balance to Salary Ratio
+churn_data <- churn_data %>%
+  mutate(Balance_to_Salary_Ratio = Balance / EstimatedSalary)
+
+# Convert 'Exited' to factor for modeling
+churn_data$Exited <- as.factor(churn_data$Exited)
+
+4. Summary Statistics and Basic Analysis
+
+# Summary of churn data
+
+summary(churn_data)
+
+# Grouping data by HasCrCard and summarizing average age, balance, and credit score
+HasCrCard_data <- churn_data %>%
+  group_by(HasCrCard) %>%
+  summarize(Avg_Age = mean(Age, na.rm = TRUE), 
+            Avg_Balance = mean(Balance, na.rm = TRUE), 
+            Avg_Credit_Score = mean(CreditScore, na.rm = TRUE))
+
+5. Visualization of Churn by Geography
+
+# Plotting churn by geography
+ggplot(churn_data, aes(x = Exited, fill = Geography)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Churn by Geography", x = "Churn Status", y = "Count")
+
+6. Average Balance and Churn Rate by Geography
+
+# Calculate average balance and churn rate by geography
+geo_behavior <- churn_data %>%
+  group_by(Geography) %>%
+  summarize(
+    Avg_Balance = mean(Balance, na.rm = TRUE), 
+    Churn_Rate = mean(Exited == 1, na.rm = TRUE)
+  )
+
+7. Logistic Regression Model for Churn Prediction
+
+# Building a logistic regression model to predict churn
+churn_model <- glm(Exited ~ Age + CreditScore + Geography + Gender + Balance + HasCrCard + IsActiveMember, 
+                   data = churn_data, family = "binomial")
+
+# Displaying the summary of the model
+summary(churn_model)
+
+8. Additional Visualization
+
+# Visualizing the relationship between HasCrCard and churn
+ggplot(HasCrCard_data, aes(x = HasCrCard, fill = Exited)) +
+  geom_bar(position = "dodge") +
+  labs(title = "Churn by Credit Card Ownership", x = "Has Credit Card", y = "Count")
+
+
 Model Evaluation: Evaluated the model's performance using metrics such as accuracy, precision, and the confusion matrix to assess how well it predicts customer churn.
 
 
